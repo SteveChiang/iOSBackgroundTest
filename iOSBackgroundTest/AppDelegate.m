@@ -9,7 +9,10 @@
 #import "AppDelegate.h"
 
 #import "ViewController.h"
-
+@interface AppDelegate () {
+    BOOL mFlag;
+}
+@end
 @implementation AppDelegate
 
 - (void)dealloc
@@ -35,10 +38,47 @@
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    if (!mFlag) {
+        mFlag = YES;
+        
+        // 時間到了會執行這個block
+        __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
+//            [application endBackgroundTask:bgTask];
+//            bgTask = UIBackgroundTaskInvalid;
+//            mFlag = NO;
+        }];
+        
+        // 在背景執行一些東西...
+        // 在這邊我用一個無窮迴圈來測試
+        // backgroundTimeRemaining 會開始倒數10分鐘
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            // run something background
+            NSLog(@"App in BG!");
+            int i = 0;
+            while (YES) {
+                NSString *msg = nil;
+                if ([UIApplication sharedApplication].backgroundTimeRemaining <= 0) {
+                    msg = @"App STILL in BG, backgroundTimeRemaining ";
+
+                } else {
+                    msg = @"App in BG, backgroundTimeRemaining ";
+                }
+                
+                
+                NSLog(@"%@%f sec", msg, [UIApplication sharedApplication].backgroundTimeRemaining);
+                [UIApplication sharedApplication].applicationIconBadgeNumber = ++i;
+                [NSThread sleepForTimeInterval:0.1];
+                
+            }
+            
+            // when finish, call this method
+            [application endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+            mFlag = NO;
+        });
+    }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application

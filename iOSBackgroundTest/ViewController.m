@@ -26,4 +26,10 @@
     // Dispose of any resources that can be recreated.
 }
 
+-(IBAction)susp:(id)sender {
+    [[UIApplication sharedApplication] performSelector:@selector(suspend)];
+}
+
+
+
 @end

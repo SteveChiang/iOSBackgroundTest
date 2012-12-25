@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
-
+-(IBAction)susp:(id)sender;
 @end
